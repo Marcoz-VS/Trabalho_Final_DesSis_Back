@@ -4,6 +4,8 @@ import { connect } from "./config/database.js";
 import cors from "cors";
 import RegisterRouter from "./routes/RegisterRoutes.js";
 import UsersRouter from "./routes/UsersRoutes.js";
+import LoginRouter from "./routes/LoginRoutes.js";
+import StudentRouter from "./routes/StudentRoutes.js";
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -17,6 +19,8 @@ app.use(
 app.use(json());
 app.use("/register", RegisterRouter)
 app.use("/users", UsersRouter)
+app.use("/login", LoginRouter)
+app.use("/students", StudentRouter)
 
 
 app.listen(PORT, async () => {
