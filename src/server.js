@@ -2,6 +2,8 @@ import "dotenv/config";
 import express, { json } from "express";
 import { connect } from "./config/database.js";
 import cors from "cors";
+import RegisterRouter from "./routes/RegisterRoutes.js";
+import UsersRouter from "./routes/UsersRoutes.js";
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -13,10 +15,8 @@ app.use(
   }),
 );
 app.use(json());
-
-app.use("/", (req, res) => {
-    res.send('oi');
-});
+app.use("/register", RegisterRouter)
+app.use("/users", UsersRouter)
 
 
 app.listen(PORT, async () => {
