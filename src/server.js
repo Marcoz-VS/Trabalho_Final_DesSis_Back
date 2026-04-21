@@ -8,6 +8,7 @@ import LoginRouter from "./routes/LoginRoutes.js";
 import StudentRouter from "./routes/StudentRoutes.js";
 import ClassRouter from "./routes/ClassRoutes.js";
 import EnrollmentRouter from "./routes/EnrollmentRoutes.js";
+import ScoreRouter from "./routes/ScoreROutes.js";
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -24,7 +25,8 @@ app.use("/users", UsersRouter);
 app.use("/login", LoginRouter);
 app.use("/students", StudentRouter);
 app.use("/class", ClassRouter);
-app.use("/enrollment", EnrollmentRouter)
+app.use("/enrollment", EnrollmentRouter);
+app.use("/scores", ScoreRouter);
 
 
 app.listen(PORT, async () => {
