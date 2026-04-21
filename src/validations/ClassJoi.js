@@ -29,8 +29,8 @@ const createClassSchema = Joi.object({
 
 const updateClassSchema = Joi.object({
 
-  professor_id: Joi.integer(),
-  
+  professor_id: Joi.number().integer(),
+
   name: Joi.string().min(3).max(100),
 
   description: Joi.string().max(1000).allow(null, ''),

@@ -1,7 +1,7 @@
-import Enrollment from "../models/Enrollment.js";
-import Class from "../models/Class.js"
-import Student from "../models/Student.js"
-import User from "../models/User.js"
+import { Enrollment }  from "../models/Index.js";
+import { Class } from "../models/Index.js"
+import { Student } from "../models/Index.js"
+import { User } from "../models/Index.js"
 
 const RollmentController = {
     enrollStudent: async (req, res) => {
@@ -27,75 +27,116 @@ const RollmentController = {
         }
     },
 
-    getEnrollmentByStudent: async (req, res) => {
-     try{
+getEnrollmentByStudent: async (req, res) => {
+  try {
+    const { id } = req.params;
 
-      const { id } = req.params;
-
-      const enrollments = await Enrollment.findAll({
-        where: { student_id: id },
-        include: {
-          model: Class,
-          as: 'class'
-        }
-      });
-
-      if (!enrollments || enrollments.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: "Nenhuma matrícula encontrada para este estudante."
-        });
-      }
-
-      res.status(200).json({
-        success: true,
-        data: enrollments
-      });
-
-     }catch(err){
-     res.status(500).json({ success: false, message: "Erro interno ao verificar matricula do estudante." });
-     }
-    },
-
-    getEnrollmentByClass: async (req, res) => {
-        try{
-
-    const {id} = req.params;
+    if (isNaN(id)) {
+      return res.status(400).json({ success: false, message: "ID inválido" });
+    }
 
     const enrollments = await Enrollment.findAll({
-        where: { class_id: id }, include: {model: Student, as: 'student', include: {model: User, as: 'user'}}});
-
-      if (!enrollments || enrollments.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: "Nenhuma matrícula encontrada nesta turma."
-        });
+      where: { student_id: id },
+      include: {
+        model: Class,
+        as: 'class',
+        attributes: ['id', 'name', 'year', 'semester']
       }
+    });
 
-      res.status(200).json({
-        success: true,
-        data: enrollments
+    if (!enrollments.length) {
+      return res.status(404).json({
+        success: false,
+        message: "Nenhuma matrícula encontrada para este estudante."
       });
-
-        }catch(err) {
-     res.status(500).json({ success: false, message: "Erro interno ao verificar matriculas da turma." });
-        }
-    },
-
-    cancelEnrollment: async (req, res) => {
-        try{
-         const {id} = req.params
-
-         const deletado = await Enrollment.destroy({where: {student_id: id}})
-
-      if (!deletado) return res.status(404).json({ success: false, message: "matricula de estudante não encontrada." });
-
-      res.status(200).json({ success: true, message: "Estudante removido com sucesso!" });
-      
-        }catch(err){
-     res.status(500).json({ success: false, message: "Erro interno ao cancelar matricula do estudante." });
-        }
     }
+
+    res.status(200).json({ success: true, data: enrollments });
+
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Erro interno ao verificar matrícula do estudante.",
+      error: err.message
+    });
+  }
+},
+
+getEnrollmentByClass: async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (isNaN(id)) {
+      return res.status(400).json({ success: false, message: "ID inválido" });
+    }
+
+    const enrollments = await Enrollment.findAll({
+      where: { class_id: id },
+      include: {
+        model: Student,
+        as: 'student',
+        include: {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'email']
+        }
+      }
+    });
+
+    if (!enrollments.length) {
+      return res.status(404).json({
+        success: false,
+        message: "Nenhuma matrícula encontrada nesta turma."
+      });
+    }
+
+    res.status(200).json({ success: true, data: enrollments });
+
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Erro interno ao verificar matrículas da turma.",
+      error: err.message
+    });
+  }
+},
+
+cancelEnrollment: async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (isNaN(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "ID inválido"
+      });
+    }
+
+    const enrollment = await Enrollment.findByPk(id);
+
+    if (!enrollment) {
+      return res.status(404).json({
+        success: false,
+        message: "Matrícula não encontrada"
+      });
+    }
+
+    await enrollment.destroy();
+
+    res.status(200).json({
+      success: true,
+      message: "Matrícula removida com sucesso!"
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Erro interno ao cancelar matrícula",
+      error: err.message
+    });
+  }
+}
 }
 
 export default RollmentController;
