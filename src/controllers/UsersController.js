@@ -1,23 +1,6 @@
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
-import Joi from "joi";
 
-const updateSchema = Joi.object({
-  name: Joi.string().min(3).max(255).optional(),
-  email: Joi.string().email().optional(),
-  password_hash: Joi.string()
-    .pattern(/^[a-zA-Z0-9]{3,30}$/)
-    .allow("")
-    .optional(),
-  cpf: Joi.string()
-    .pattern(/^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/)
-    .optional(),
-  role: Joi.string().valid("student", "admin", "professor").optional(),
-}).min(1);
-
-const idSchema = Joi.object({
-  id: Joi.number().integer().required()
-});
 
 const UsersController = {
   getAll: async (req, res) => {
@@ -33,9 +16,7 @@ const UsersController = {
 
     getById: async (req, res) => {
     try {
-      const { error } = idSchema.validate(req.params);
-      if (error) return res.status(400).json({ success: false, message: error.details[0].message });
-
+      
       const { id } = req.params;
       const resultado = await User.findByPk(id, { attributes: { exclude: ["password_hash"] } });
 
@@ -49,11 +30,7 @@ const UsersController = {
 
   update: async (req, res) => {
     try {
-      const { id } = req.params;
-      
-      const { error, value } = updateSchema.validate(req.body, { abortEarly: false });
-
-       const { name, email, password_hash, role } = value;
+       const { name, email, password_hash, role } = req.body;
 
       if (error) {
         return res.status(400).json({
@@ -67,10 +44,10 @@ const UsersController = {
         return res.status(404).json({ success: false, message: "Usuário não encontrado." });
       }
 
-      const dadosAtualizados = { ...value };
+      const dadosAtualizados = { name, email, password_hash, role };
       
-      if (value.password_hash && value.password_hash.trim() !== "") {
-        dadosAtualizados.password_hash = await bcrypt.hash(value.password_hash, 10);
+      if (req.body.password_hash && req.body.password_hash.trim() !== "") {
+        dadosAtualizados.password_hash = await bcrypt.hash(req.body.password_hash, 10);
       } else {
         delete dadosAtualizados.password_hash;
       }
@@ -88,8 +65,6 @@ const UsersController = {
 
   delete: async (req, res) => {
     try {
-      const { error } = idSchema.validate(req.params);
-      if (error) return res.status(400).json({ success: false, message: "ID inválido." });
 
       const { id } = req.params;
       const deletado = await User.destroy({ where: { id } });
