@@ -1,14 +1,14 @@
-import { User } from "../models/index.js";
+import { User } from "../models/Index.js";
 import bcrypt from "bcrypt";
 
 const UsersController = {
   getAll: async (req, res) => {
     try {
-      const resultado = await User.findAll({
+      const users = await User.findAll({
         attributes: { exclude: ["password"] },
       });
 
-      res.status(200).json({ success: true, data: resultado });
+      res.status(200).json({ success: true, data: users });
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -22,18 +22,18 @@ const UsersController = {
     try {
       const { id } = req.params;
 
-      const resultado = await User.findByPk(id, {
+      const user = await User.findByPk(id, {
         attributes: { exclude: ["password"] },
       });
 
-      if (!resultado) {
+      if (!user) {
         return res.status(404).json({
           success: false,
           message: "Usuário não encontrado.",
         });
       }
 
-      res.status(200).json({ success: true, data: resultado });
+      res.status(200).json({ success: true, data: user });
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -47,23 +47,27 @@ const UsersController = {
       const { id } = req.params;
       const { name, email, password, role } = req.body;
 
-      const usuarioExistente = await User.findByPk(id);
+      const user = await User.findByPk(id);
 
-      if (!usuarioExistente) {
+      if (!user) {
         return res.status(404).json({
           success: false,
           message: "Usuário não encontrado.",
         });
       }
 
-      const dadosAtualizados = { name, email, role };
+      const updatedData = {};
+
+      if (name !== undefined) updatedData.name = name;
+      if (email !== undefined) updatedData.email = email;
+      if (role !== undefined) updatedData.role = role;
 
       if (password?.trim()) {
-        dadosAtualizados.password = await bcrypt.hash(password, 10);
+        updatedData.password = await bcrypt.hash(password, 10);
       }
 
-      usuarioExistente.set(dadosAtualizados);
-      await usuarioExistente.save();
+      user.set(updatedData);
+      await user.save();
 
       res.status(200).json({
         success: true,
@@ -88,9 +92,9 @@ const UsersController = {
     try {
       const { id } = req.params;
 
-      const deletado = await User.destroy({ where: { id } });
+      const deleted = await User.destroy({ where: { id } });
 
-      if (!deletado) {
+      if (!deleted) {
         return res.status(404).json({
           success: false,
           message: "Usuário não encontrado.",

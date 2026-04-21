@@ -1,5 +1,5 @@
-export const Validate = (schema) => (req, res, next) => {
-  const { error, value } = schema.validate(req.body, {
+export const Validate = (schema, property = 'body') => (req, res, next) => {
+  const { error, value } = schema.validate(req[property], {
     abortEarly: false,
     stripUnknown: true,
   });
@@ -11,7 +11,7 @@ export const Validate = (schema) => (req, res, next) => {
     });
   }
 
-  req.body = value;
+  req[property] = value;
 
   next();
 };

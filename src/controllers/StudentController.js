@@ -1,11 +1,17 @@
-import { Student, User } from "../models/index.js";
+import { Student, User } from "../models/Index.js";
 
 const StudentController = {
   getAllStudents: async (req, res) => {
     try {
-      const resultado = await Student.findAll();
+      const students = await Student.findAll({
+        include: {
+          model: User,
+          as: "user",
+          attributes: ["id", "name", "email", "role"],
+        },
+      });
 
-      res.status(200).json({ success: true, data: resultado });
+      res.status(200).json({ success: true, data: students });
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -17,22 +23,24 @@ const StudentController = {
 
   getStudentById: async (req, res) => {
     try {
-      const id = Number(req.params.id);
+      const { id } = req.params;
 
-      if (!Number.isInteger(id)) {
-        return res.status(400).json({ success: false, message: "ID inválido" });
-      }
+      const student = await Student.findByPk(id, {
+        include: {
+          model: User,
+          as: "user",
+          attributes: ["id", "name", "email", "role"],
+        },
+      });
 
-      const resultado = await Student.findByPk(id);
-
-      if (!resultado) {
+      if (!student) {
         return res.status(404).json({
           success: false,
           message: "Estudante não encontrado.",
         });
       }
 
-      res.status(200).json({ success: true, data: resultado });
+      res.status(200).json({ success: true, data: student });
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -46,14 +54,15 @@ const StudentController = {
       const { user_id, registration, birth_date, phone, avatar_url } = req.body;
 
       const user = await User.findByPk(user_id);
-      if (!user) {
-        return res.status(404).json({
+
+      if (!user || user.role !== "student") {
+        return res.status(400).json({
           success: false,
-          message: "Usuário não encontrado.",
+          message: "Usuário inválido ou não é um estudante.",
         });
       }
 
-      const resultado = await Student.create({
+      const student = await Student.create({
         user_id,
         registration,
         birth_date,
@@ -64,7 +73,7 @@ const StudentController = {
       res.status(201).json({
         success: true,
         message: "Estudante criado com sucesso!",
-        data: resultado,
+        data: student,
       });
     } catch (err) {
       if (err.name === "SequelizeUniqueConstraintError") {
@@ -77,31 +86,33 @@ const StudentController = {
       res.status(500).json({
         success: false,
         message: "Erro interno ao criar estudante.",
+        error: err.message,
       });
     }
   },
 
   updateStudent: async (req, res) => {
     try {
-      const id = Number(req.params.id);
-
-      if (!Number.isInteger(id)) {
-        return res.status(400).json({ success: false, message: "ID inválido" });
-      }
-
+      const { id } = req.params;
       const { birth_date, phone, avatar_url } = req.body;
 
-      const studentExistente = await Student.findByPk(id);
+      const student = await Student.findByPk(id);
 
-      if (!studentExistente) {
+      if (!student) {
         return res.status(404).json({
           success: false,
           message: "Estudante não encontrado.",
         });
       }
 
-      studentExistente.set({ birth_date, phone, avatar_url });
-      await studentExistente.save();
+      const updatedData = {};
+
+      if (birth_date !== undefined) updatedData.birth_date = birth_date;
+      if (phone !== undefined) updatedData.phone = phone;
+      if (avatar_url !== undefined) updatedData.avatar_url = avatar_url;
+
+      student.set(updatedData);
+      await student.save();
 
       res.status(200).json({
         success: true,
@@ -110,6 +121,7 @@ const StudentController = {
     } catch (err) {
       res.status(500).json({
         success: false,
+        message: "Erro ao atualizar estudante.",
         error: err.message,
       });
     }
@@ -117,15 +129,11 @@ const StudentController = {
 
   deleteStudent: async (req, res) => {
     try {
-      const id = Number(req.params.id);
+      const { id } = req.params;
 
-      if (!Number.isInteger(id)) {
-        return res.status(400).json({ success: false, message: "ID inválido" });
-      }
+      const deleted = await Student.destroy({ where: { id } });
 
-      const deletado = await Student.destroy({ where: { id } });
-
-      if (!deletado) {
+      if (!deleted) {
         return res.status(404).json({
           success: false,
           message: "Estudante não encontrado.",
