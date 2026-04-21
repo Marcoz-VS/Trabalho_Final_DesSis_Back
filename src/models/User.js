@@ -1,7 +1,7 @@
-import { DataTypes } from 'sequelize';
-import { sequelize } from '../config/database.js';
+import { DataTypes } from "sequelize";
+import { sequelize } from "../config/database.js";
 
-const User = sequelize.define('User', {
+const User = sequelize.define("User", {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -19,14 +19,14 @@ const User = sequelize.define('User', {
       isEmail: true,
     },
   },
-  password_hash: {
+  password: {
     type: DataTypes.STRING,
     allowNull: false,
   },
   role: {
-    type: DataTypes.ENUM('admin', 'professor', 'student'),
+    type: DataTypes.ENUM("admin", "professor", "student"),
     allowNull: false,
-    defaultValue: 'student',
+    defaultValue: "student",
   },
 });
 

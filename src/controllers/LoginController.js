@@ -7,12 +7,13 @@ const chaveSecreta = process.env.CHAVE_JWT;
 const LoginController = {
   login: async (req, res) => {
     try {
-
-      const { email, password_hash } = req.body
+      const { email, password } = req.body;
       const resultado = await User.findOne({ where: { email } });
 
-
-      if (!resultado || !(await bcrypt.compare(password_hash, resultado.password_hash))) {
+      if (
+        !resultado ||
+        !(await bcrypt.compare(password, resultado.password))
+      ) {
         return res.status(401).json({
           success: false,
           message: "E-mail ou senha incorretos.",
@@ -25,11 +26,23 @@ const LoginController = {
         { expiresIn: "2h" },
       );
 
-
-      res.status(200).json({ success: true, message: "Login realizado com sucesso!", token, user:{ id:resultado.id, name:resultado.name, email: resultado.email, role: resultado.role} });
-
+      res
+        .status(200)
+        .json({
+          success: true,
+          message: "Login realizado com sucesso!",
+          token,
+          user: {
+            id: resultado.id,
+            name: resultado.name,
+            email: resultado.email,
+            role: resultado.role,
+          },
+        });
     } catch (error) {
-      res.status(500).json({ success: false, message: "Erro ao tentar realizar login." });
+      res
+        .status(500)
+        .json({ success: false, message: "Erro ao tentar realizar login." });
     }
   },
 };

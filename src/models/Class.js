@@ -1,7 +1,7 @@
-import { DataTypes } from 'sequelize';
-import { sequelize } from '../config/database.js';
+import { DataTypes } from "sequelize";
+import { sequelize } from "../config/database.js";
 
-const Class = sequelize.define('Class', {
+const Class = sequelize.define("Class", {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -11,8 +11,8 @@ const Class = sequelize.define('Class', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'users',
-      key: 'id',
+      model: "users",
+      key: "id",
     },
   },
   name: {

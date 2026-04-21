@@ -1,4 +1,4 @@
-import Joi from 'joi'
+import Joi from "joi";
 
 const updateSchema = Joi.object({
   name: Joi.string().min(3).max(255).optional(),
@@ -14,7 +14,7 @@ const updateSchema = Joi.object({
 }).min(1);
 
 const idSchema = Joi.object({
-  id: Joi.number().integer().required()
+  id: Joi.number().integer().required(),
 });
 
-export {updateSchema, idSchema}
+export { updateSchema, idSchema };

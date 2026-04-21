@@ -1,7 +1,7 @@
-import { DataTypes } from 'sequelize';
-import { sequelize } from '../config/database.js';
+import { DataTypes } from "sequelize";
+import { sequelize } from "../config/database.js";
 
-const Score = sequelize.define('Score', {
+const Score = sequelize.define("Score", {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -11,8 +11,8 @@ const Score = sequelize.define('Score', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'enrollments',
-      key: 'id',
+      model: "enrollments",
+      key: "id",
     },
   },
   assessment: {
