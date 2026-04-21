@@ -3,11 +3,28 @@ import { Class, User } from "../models/Index.js";
 const ClassController = {
   getAllClasses: async (req, res) => {
     try {
-      const resultado = await Class.findAll();
+      const resultado = await Class.findAll({
+        include: {
+          model: User,
+          as: "professor",
+          attributes: ["id", "name"],
+        },
+      });
+
+      const formatted = resultado.map((c) => {
+        const obj = c.toJSON();
+
+        obj.professor = obj.professor ?? {
+          id: null,
+          name: "Professor removido",
+        };
+
+        return obj;
+      });
 
       res.status(200).json({
         success: true,
-        data: resultado,
+        data: formatted,
       });
     } catch (error) {
       res.status(500).json({
@@ -22,7 +39,13 @@ const ClassController = {
     try {
       const { id } = req.params;
 
-      const resultado = await Class.findByPk(id);
+      const resultado = await Class.findByPk(id, {
+        include: {
+          model: User,
+          as: "professor",
+          attributes: ["id", "name"],
+        },
+      });
 
       if (!resultado) {
         return res.status(404).json({
@@ -31,9 +54,16 @@ const ClassController = {
         });
       }
 
+      const obj = resultado.toJSON();
+
+      obj.professor = obj.professor ?? {
+        id: null,
+        name: "Professor removido",
+      };
+
       res.status(200).json({
         success: true,
-        data: resultado,
+        data: obj,
       });
     } catch (error) {
       res.status(500).json({

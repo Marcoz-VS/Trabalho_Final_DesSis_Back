@@ -6,13 +6,22 @@ const RegisterController = {
     try {
       const { name, email, password, role } = req.body;
 
+      const userExistente = await User.findOne({ where: { email } });
+
+      if (userExistente) {
+        return res.status(409).json({
+          success: false,
+          message: "E-mail já cadastrado.",
+        });
+      }
+
       const hash = await bcrypt.hash(password, 10);
 
       const resultado = await User.create({
         name,
         email,
         password: hash,
-        role,
+        role: role || "student",
       });
 
       const { password: _, ...usuarioSemSenha } = resultado.toJSON();
@@ -26,6 +35,7 @@ const RegisterController = {
       res.status(500).json({
         success: false,
         message: "Erro interno ao processar o cadastro.",
+        error: error.message,
       });
     }
   },
