@@ -1,24 +1,32 @@
 import express from "express";
 import UsersController from "../controllers/UsersController.js";
 import { Validate } from "../middlewares/ValidateMiddleware.js";
-import { updateSchema, idSchema } from "../validations/UsersJoi.js";
+import { updateSchema, firstTimeUpdateSchema } from "../validations/UsersJoi.js";
+import { idParamSchema } from  "../validations/IdJoi.js";
 
 const UsersRouter = express.Router();
 
 UsersRouter.get("/", UsersController.getAll);
 
-UsersRouter.get("/:id", Validate(idSchema, "params"), UsersController.getById);
+UsersRouter.get("/:id", Validate(idParamSchema, "params"), UsersController.getById);
 
 UsersRouter.put(
   "/:id",
-  Validate(idSchema, "params"),
+  Validate(idParamSchema, "params"),
   Validate(updateSchema),
   UsersController.update,
 );
 
+UsersRouter.patch(
+  "/firstTimeUpdate/:id",
+  Validate(idParamSchema, "params"),
+  Validate(firstTimeUpdateSchema),
+  UsersController.updateFirsTimePassword,
+);
+
 UsersRouter.delete(
   "/:id",
-  Validate(idSchema, "params"),
+  Validate(idParamSchema, "params"),
   UsersController.delete,
 );
 

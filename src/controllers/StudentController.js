@@ -25,6 +25,13 @@ const StudentController = {
     try {
       const { id } = req.params;
 
+      if (req.user.id !== id) {
+        return res.status(403).json({
+          success: false,
+          message: "Usuário não tem permissão para realizar a consulta"
+        })
+      }
+
       const student = await Student.findByPk(id, {
         include: {
           model: User,

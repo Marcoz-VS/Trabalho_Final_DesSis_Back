@@ -22,6 +22,13 @@ const UsersController = {
     try {
       const { id } = req.params;
 
+      if (req.user.id !== id) {
+        return res.status(403).json({
+          success: false,
+          message: "Usuário não tem permissão para realizar a consulta"
+        })
+      }
+
       const user = await User.findByPk(id, {
         attributes: { exclude: ["password"] },
       });
@@ -62,7 +69,7 @@ const UsersController = {
       if (email !== undefined) updatedData.email = email;
       if (role !== undefined) updatedData.role = role;
 
-      if (password?.trim()) {
+      if (password && password.trim()) {
         updatedData.password = await bcrypt.hash(password, 10);
       }
 
@@ -81,6 +88,46 @@ const UsersController = {
         });
       }
 
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  },
+
+  updateFirsTimePassword: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { password } = req.body;
+
+      const user = await User.findByPk(id);
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "Usuário não encontrado.",
+        });
+      }
+
+      const updatedData = {};
+
+      if (req.user.firstTime === true) {
+        updatedData.firstTime = false;
+      }
+
+      if (password && password.trim()) {
+        updatedData.password = await bcrypt.hash(password, 10);
+      }
+
+      user.set(updatedData);
+      await user.save();
+
+      res.status(200).json({
+        success: true,
+        message: "Perfil atualizado com sucesso!",
+      });
+
+    } catch (error) {
       res.status(500).json({
         success: false,
         error: error.message,

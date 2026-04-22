@@ -13,8 +13,11 @@ const updateSchema = Joi.object({
   role: Joi.string().valid("student", "admin", "professor").optional(),
 }).min(1);
 
-const idSchema = Joi.object({
-  id: Joi.number().integer().required(),
-});
+const firstTimeUpdateSchema = Joi.object({
+  password: Joi.string()
+    .pattern(/^[a-zA-Z0-9]{3,30}$/)
+    .allow("")
+    .optional(),
+}).min(1);
 
-export { updateSchema, idSchema };
+export { updateSchema, firstTimeUpdateSchema };

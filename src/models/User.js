@@ -28,6 +28,10 @@ const User = sequelize.define("User", {
     allowNull: false,
     defaultValue: "student",
   },
+  firstTime: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
+  }
 });
 
 export default User;

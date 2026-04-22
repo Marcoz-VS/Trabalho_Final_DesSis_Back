@@ -1,39 +1,45 @@
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
+import { randomInt } from "crypto";
 
 const RegisterController = {
   register: async (req, res) => {
     try {
-      const { name, email, password, role } = req.body;
+      const { name } = req.body;
 
-      const emailNormalizado = email.toLowerCase();
+      const nameNormalizado = name.toLowerCase();
 
-      const existente = await User.findOne({
-        where: { email: emailNormalizado },
-      });
+      let number = randomInt(0, 999);
 
-      if (existente) {
-        return res.status(409).json({
-          success: false,
-          message: "E-mail já cadastrado.",
-        });
+      let email = `${nameNormalizado}` + `${number}` + "@estudante.com";
+
+      const emailDuplicado = await User.findByPk(email);
+
+      while (email === emailDuplicado) {
+        number = randomInt(0, 999);
+
+        email = `${nameNormalizado}` + `${number}` + "@estudante.com";
       }
+
+      number = randomInt(100000, 1000000);
+
+      const password = `${name}` + `${number}`
 
       const hash = await bcrypt.hash(password, 10);
 
       const resultado = await User.create({
         name,
-        email: emailNormalizado,
+        email: email,
         password: hash,
-        role,
       });
 
-      const { password: _, ...usuarioSemSenha } = resultado.toJSON();
+      resultado.toJSON();
+      resultado.password = password
 
       res.status(201).json({
         success: true,
         message: "Usuário criado com sucesso!",
-        data: usuarioSemSenha,
+        data: resultado,
       });
     } catch (error) {
       res.status(500).json({

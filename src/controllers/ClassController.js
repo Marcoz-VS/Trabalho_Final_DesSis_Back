@@ -14,10 +14,12 @@ const ClassController = {
       const formatted = resultado.map((c) => {
         const obj = c.toJSON();
 
-        obj.professor = obj.professor ?? {
+        if (!obj.professor) {
+          obj.professor = {
           id: null,
           name: "Professor removido",
-        };
+        }
+      };
 
         return obj;
       });
@@ -56,9 +58,13 @@ const ClassController = {
 
       const obj = resultado.toJSON();
 
-      obj.professor = obj.professor ?? {
-        id: null,
-        name: "Professor removido",
+      const formatted = () => {
+        if (!obj.professor) {
+          obj.professor = {
+          id: null,
+          name: "Professor removido",
+          }
+        }
       };
 
       res.status(200).json({
