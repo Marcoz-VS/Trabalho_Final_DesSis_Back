@@ -6,9 +6,13 @@ const RegisterController = {
     try {
       const { name, email, password, role } = req.body;
 
-      const userExistente = await User.findOne({ where: { email } });
+      const emailNormalizado = email.toLowerCase();
 
-      if (userExistente) {
+      const existente = await User.findOne({
+        where: { email: emailNormalizado },
+      });
+
+      if (existente) {
         return res.status(409).json({
           success: false,
           message: "E-mail já cadastrado.",
@@ -19,9 +23,9 @@ const RegisterController = {
 
       const resultado = await User.create({
         name,
-        email,
+        email: emailNormalizado,
         password: hash,
-        role: role || "student",
+        role,
       });
 
       const { password: _, ...usuarioSemSenha } = resultado.toJSON();

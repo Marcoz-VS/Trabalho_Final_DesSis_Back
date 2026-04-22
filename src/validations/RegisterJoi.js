@@ -12,7 +12,7 @@ const registerSchema = Joi.object({
   }),
 
   password: Joi.string().min(3).max(30).required().messages({
-    "string.min": "A senha deve ter no mínimo 3 caracteres.",
+    "string.min": "A senha deve ter pelo menos 3 caracteres.",
     "any.required": "A senha é obrigatória.",
   }),
 
