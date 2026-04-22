@@ -5,6 +5,7 @@ import { Validate } from '../middlewares/ValidateMiddleware.js';
 
 const RegisterRouter = express.Router();
 
-RegisterRouter.post('/', Validate(registerSchema), RegisterController.register);
+RegisterRouter.post("/student", Validate(registerSchema), RegisterController.register);
+RegisterRouter.post("/professor", Validate(registerSchema), RegisterController.registerTeacher);
 
 export default RegisterRouter;
