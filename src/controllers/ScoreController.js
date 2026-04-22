@@ -1,4 +1,4 @@
-import { Score, Enrollment, Student, User, Class } from "../models/index.js";
+import { Score, Enrollment, Student, User, Class } from "../models/Index.js";
 
 const ScoreController = {
   getAllScores: async (req, res) => {
