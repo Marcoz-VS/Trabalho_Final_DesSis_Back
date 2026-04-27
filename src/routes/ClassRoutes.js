@@ -6,8 +6,12 @@ import {
   updateClassSchema,
 } from "../validations/ClassJoi.js";
 import { idParamSchema } from "../validations/IdJoi.js";
+import { Role } from "../middlewares/RoleMiddleware.js";
+import { Auth } from "../middlewares/AuthMiddleware.js";
 
 const ClassRouter = express.Router();
+
+ClassRouter.use(Auth);
 
 ClassRouter.get("/", ClassController.getAllClasses);
 
@@ -17,10 +21,11 @@ ClassRouter.get(
   ClassController.getClassById,
 );
 
-ClassRouter.post("/", Validate(createClassSchema), ClassController.createClass);
+ClassRouter.post("/", Role('admin'), Validate(createClassSchema), ClassController.createClass);
 
-ClassRouter.patch(
+ClassRouter.put(
   "/:id",
+  Role('admin'),
   Validate(idParamSchema, "params"),
   Validate(updateClassSchema),
   ClassController.updateClass,
@@ -28,6 +33,7 @@ ClassRouter.patch(
 
 ClassRouter.delete(
   "/:id",
+  Role('admin'),
   Validate(idParamSchema, "params"),
   ClassController.deleteClass,
 );

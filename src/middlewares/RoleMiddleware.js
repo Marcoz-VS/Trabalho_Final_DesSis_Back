@@ -10,6 +10,10 @@ export const Role = (...rolesPermitidos) => {
         });
       }
 
+      if (user.role === "admin") {
+        return next();
+      }
+
       if (!rolesPermitidos.includes(user.role)) {
         return res.status(403).json({
           success: false,

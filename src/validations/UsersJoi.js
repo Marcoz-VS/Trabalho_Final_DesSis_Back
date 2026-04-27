@@ -10,7 +10,6 @@ const updateSchema = Joi.object({
     .allow("")
     .optional(),
 
-  role: Joi.string().valid("student", "admin", "professor").optional(),
 }).min(1);
 
 const firstTimeUpdateSchema = Joi.object({

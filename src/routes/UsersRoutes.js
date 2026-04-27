@@ -3,12 +3,16 @@ import UsersController from "../controllers/UsersController.js";
 import { Validate } from "../middlewares/ValidateMiddleware.js";
 import { updateSchema, firstTimeUpdateSchema } from "../validations/UsersJoi.js";
 import { idParamSchema } from  "../validations/IdJoi.js";
+import {Role} from '../middlewares/RoleMiddleware.js';
+import {Auth} from '../middlewares/AuthMiddleware.js';
 
-const UsersRouter = express.Router();
+const UsersRouter = express.Router()
 
-UsersRouter.get("/", UsersController.getAll);
+UsersRouter.use(Auth);
 
-UsersRouter.get("/:id", Validate(idParamSchema, "params"), UsersController.getById);
+UsersRouter.get("/", Role('admin'), UsersController.getAll);
+
+UsersRouter.get("/:id", Role('admin', 'student', 'professor'), Validate(idParamSchema, "params"), UsersController.getById);
 
 UsersRouter.put(
   "/:id",
@@ -21,11 +25,12 @@ UsersRouter.patch(
   "/firstTimeUpdate/:id",
   Validate(idParamSchema, "params"),
   Validate(firstTimeUpdateSchema),
-  UsersController.updateFirsTimePassword,
+  UsersController.updateFirstTimePassword,
 );
 
 UsersRouter.delete(
   "/:id",
+  Role('admin'),
   Validate(idParamSchema, "params"),
   UsersController.delete,
 );

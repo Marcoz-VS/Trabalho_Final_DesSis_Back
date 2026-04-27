@@ -6,8 +6,12 @@ import {
   updateScoreSchema,
 } from "../validations/ScoreJoi.js";
 import { idParamSchema } from "../validations/IdJoi.js";
+import { Role } from "../middlewares/RoleMiddleware.js";
+import { Auth } from "../middlewares/AuthMiddleware.js";
 
 const ScoreRouter = express.Router();
+
+ScoreRouter.use(Auth);
 
 ScoreRouter.get("/", ScoreController.getAllScores);
 

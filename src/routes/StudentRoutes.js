@@ -6,24 +6,30 @@ import {
   updateStudentSchema,
 } from "../validations/StudentsJoi.js";
 import { idParamSchema } from "../validations/IdJoi.js";
+import { Role } from "../middlewares/RoleMiddleware.js";
+import { Auth } from "../middlewares/AuthMiddleware.js";
 
 const StudentRouter = express.Router();
 
-StudentRouter.get("/", StudentController.getAllStudents);
+StudentRouter.use(Auth);
+
+StudentRouter.get("/", Role("admin"), StudentController.getAllStudents);
 
 StudentRouter.get(
   "/:id",
   Validate(idParamSchema, "params"),
+  Role("admin", "student"),
   StudentController.getStudentById,
 );
 
 StudentRouter.post(
   "/",
   Validate(studentSchema),
+  Role("admin"),
   StudentController.createStudent,
 );
 
-StudentRouter.patch(
+StudentRouter.put(
   "/:id",
   Validate(idParamSchema, "params"),
   Validate(updateStudentSchema),
@@ -33,6 +39,7 @@ StudentRouter.patch(
 StudentRouter.delete(
   "/:id",
   Validate(idParamSchema, "params"),
+  Role("admin"),
   StudentController.deleteStudent,
 );
 

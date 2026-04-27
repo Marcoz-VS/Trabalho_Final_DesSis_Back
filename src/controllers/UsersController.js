@@ -52,7 +52,14 @@ const UsersController = {
   update: async (req, res) => {
     try {
       const { id } = req.params;
-      const { name, email, password, role } = req.body;
+      const { name, email, password } = req.body;
+
+      if (req.user.id !== id) {
+        return res.status(403).json({
+          success: false,
+          message: "Usuário não tem permissão para realizar a consulta"
+        })
+      }
 
       const user = await User.findByPk(id);
 
@@ -67,7 +74,6 @@ const UsersController = {
 
       if (name !== undefined) updatedData.name = name;
       if (email !== undefined) updatedData.email = email;
-      if (role !== undefined) updatedData.role = role;
 
       if (password && password.trim()) {
         updatedData.password = await bcrypt.hash(password, 10);
@@ -95,7 +101,7 @@ const UsersController = {
     }
   },
 
-  updateFirsTimePassword: async (req, res) => {
+  updateFirstTimePassword: async (req, res) => {
     try {
       const { id } = req.params;
       const { password } = req.body;
