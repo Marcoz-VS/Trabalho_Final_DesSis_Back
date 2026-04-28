@@ -4,6 +4,7 @@ import { Auth } from "../middlewares/AuthMiddleware.js";
 import { Role } from "../middlewares/RoleMiddleware.js";
 import { Validate } from "../middlewares/ValidateMiddleware.js";
 import { idParamSchema } from "../validations/IdJoi.js";
+import { updateScheduleSchema, createScheduleSchema} from '../validations/ScheduleJoi.js'
 
 const ScheduleRouter = express.Router();
 
@@ -26,13 +27,14 @@ ScheduleRouter.get(
 ScheduleRouter.post(
   "/",
   Role("admin"),
+  Validate(createScheduleSchema),
   ScheduleController.createSchedule
 );
 
-ScheduleRouter.patch(
+ScheduleRouter.put(
   "/:id",
   Role("admin"),
-  Validate(idParamSchema, "params"),
+  Validate(idParamSchema, "params", updateScheduleSchema),
   ScheduleController.updateSchedule
 );
 

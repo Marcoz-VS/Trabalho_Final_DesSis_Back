@@ -32,6 +32,7 @@ StudentRouter.post(
 StudentRouter.put(
   "/:id",
   Validate(idParamSchema, "params"),
+  
   Validate(updateStudentSchema),
   StudentController.updateStudent,
 );
