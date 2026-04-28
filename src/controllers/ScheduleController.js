@@ -1,4 +1,4 @@
-import { Schedule, Class } from "../models/index.js";
+import { Schedule, Class } from "../models/Index.js";
 
 const ScheduleController = {
   getAllSchedules: async (req, res) => {
