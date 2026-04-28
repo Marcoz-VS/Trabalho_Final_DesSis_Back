@@ -8,32 +8,32 @@ import { Auth } from "../middlewares/AuthMiddleware.js";
 
 const EnrollmentRouter = express.Router();
 
-EnrollmentRouter.use(Auth)
+EnrollmentRouter.use(Auth);
 
 EnrollmentRouter.get(
   "/student/:id",
-  Role('admin', 'student'),
+  Role("admin", "student"),
   Validate(idParamSchema, "params"),
   EnrollmentController.getEnrollmentByStudent,
 );
 
 EnrollmentRouter.get(
   "/class/:id",
-  Role('admin', 'student'),
+  Role("admin", "professor"),
   Validate(idParamSchema, "params"),
   EnrollmentController.getEnrollmentByClass,
 );
 
 EnrollmentRouter.post(
   "/",
-  Role('admin'),
+  Role("admin"),
   Validate(enrollStudentSchema),
   EnrollmentController.enrollStudent,
 );
 
 EnrollmentRouter.delete(
   "/:id",
-  Role('admin'),
+  Role("admin"),
   Validate(idParamSchema, "params"),
   EnrollmentController.cancelEnrollment,
 );

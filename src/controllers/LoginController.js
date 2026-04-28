@@ -1,4 +1,4 @@
-import User from "../models/User.js";
+import { User } from "../models/Index";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -35,6 +35,7 @@ const LoginController = {
           id: user.id,
           email: user.email,
           role: user.role,
+          firstTime: user.firstTime,
         },
         chaveSecreta,
         { expiresIn: "2h" },

@@ -1,104 +1,86 @@
-import User from "../models/User.js";
+import { User } from "../models/Index";
 import bcrypt from "bcrypt";
-import { randomInt } from "crypto";
+import { generateCredentials } from "../utils/generateCredentials.js";
 
 const RegisterController = {
   register: async (req, res) => {
     try {
       const { name } = req.body;
 
-      const nameNormalizado = name.toLowerCase();
-
-      let number = randomInt(0, 999);
-
-      let email = `${nameNormalizado}` + `${number}` + "@estudante.com";
-
-      const emailDuplicado = await User.findByPk(email);
-
-      while (email === emailDuplicado) {
-        number = randomInt(0, 999);
-
-        email = `${nameNormalizado}` + `${number}` + "@estudante.com";
-      }
-
-      number = randomInt(100000, 1000000);
-
-      const password = `${name}` + `${number}`
-
-      const hash = await bcrypt.hash(password, 10);
-
-      const resultado = await User.create({
+      const { email, temporaryPassword } = await generateCredentials(
         name,
-        email: email,
+        "estudante.com",
+      );
+
+      const hash = await bcrypt.hash(temporaryPassword, 10);
+
+      const user = await User.create({
+        name,
+        email,
         password: hash,
       });
 
-      resultado.toJSON();
-      resultado.password = password
-
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         message: "Usuário criado com sucesso!",
-        data: resultado,
+        data: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          temporaryPassword,
+        },
       });
     } catch (error) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Erro interno ao processar o cadastro.",
         error: error.message,
       });
     }
   },
+
   registerTeacher: async (req, res) => {
     try {
       const { name, codigo } = req.body;
 
-      const codigoSecreto = process.env.CODE
+      const codigoSecreto = process.env.CODE;
 
       if (codigo !== codigoSecreto) {
-          return res.status(400).json({
-              success: false,
-              message: "Código errado, entre em contato com a secretária para mais informações"
-          })
+        return res.status(400).json({
+          success: false,
+          message:
+            "Código errado, entre em contato com a secretária para mais informações",
+        });
       }
 
-      const nameNormalizado = name.toLowerCase();
-
-      let number = randomInt(0, 999);
-
-      let email = `${nameNormalizado}` + `${number}` + "@professor.com";
-
-      const emailDuplicado = await User.findByPk(email);
-
-      while (email === emailDuplicado) {
-        number = randomInt(0, 999);
-
-        email = `${nameNormalizado}` + `${number}` + "@professor.com";
-      }
-
-      number = randomInt(100000, 1000000);
-
-      const password = `${name}` + `${number}`
-
-      const hash = await bcrypt.hash(password, 10);
-
-      const resultado = await User.create({
+      const { email, temporaryPassword } = await generateCredentials(
         name,
-        email: email,
+        "professor.com",
+      );
+
+      const hash = await bcrypt.hash(temporaryPassword, 10);
+
+      const user = await User.create({
+        name,
+        email,
         password: hash,
-        role: "professor"
+        role: "professor",
       });
 
-      resultado.toJSON();
-      resultado.password = password
-
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         message: "Professor criado com sucesso!",
-        data: resultado,
+        data: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          temporaryPassword,
+        },
       });
     } catch (error) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Erro interno ao processar o cadastro.",
         error: error.message,
