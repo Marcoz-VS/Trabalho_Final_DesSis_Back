@@ -11,6 +11,12 @@ const LoginController = {
 
       const user = await User.findOne({
         where: { email: emailNormalizado },
+        include: [
+          {
+            model: Student,
+            as: "student",
+          },
+        ],
       });
 
       const senhaValida = user
@@ -50,6 +56,11 @@ const LoginController = {
           name: user.name,
           email: user.email,
           role: user.role,
+          student: user.student
+            ? {
+                id: user.student.id,
+              }
+            : null,
         },
       });
     } catch (error) {
