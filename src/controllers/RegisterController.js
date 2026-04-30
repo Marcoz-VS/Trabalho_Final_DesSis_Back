@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import { generateCredentials } from "../utils/generateCredentials.js";
 
 const RegisterController = {
-  regisregisterStudentter: async (req, res) => {
+  registerStudent: async (req, res) => {
     try {
       const { name } = req.body;
 
