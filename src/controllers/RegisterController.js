@@ -1,4 +1,4 @@
-import { User } from "../models/Index";
+import { User } from "../models/Index.js";
 import bcrypt from "bcrypt";
 import { generateCredentials } from "../utils/generateCredentials.js";
 

@@ -5,6 +5,8 @@ import { enrollStudentSchema } from "../validations/EnrollmentJoi.js";
 import { idParamSchema } from "../validations/IdJoi.js";
 import { Role } from "../middlewares/RoleMiddleware.js";
 import { Auth } from "../middlewares/AuthMiddleware.js";
+import EnrollmentPolicy from "../policies/EnrollmentPolicy.js";
+import { Ownership } from "../middlewares/OwnershipMiddleware.js";
 
 const EnrollmentRouter = express.Router();
 
@@ -14,6 +16,7 @@ EnrollmentRouter.get(
   "/student/:id",
   Role("admin", "student"),
   Validate(idParamSchema, "params"),
+  Ownership(EnrollmentPolicy.byStudent, (req) => req.params.id),
   EnrollmentController.getEnrollmentByStudent,
 );
 
@@ -21,6 +24,7 @@ EnrollmentRouter.get(
   "/class/:id",
   Role("admin", "professor"),
   Validate(idParamSchema, "params"),
+  Ownership(EnrollmentPolicy.byClass, (req) => req.params.id),
   EnrollmentController.getEnrollmentByClass,
 );
 
