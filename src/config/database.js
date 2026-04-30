@@ -1,17 +1,19 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import { Sequelize } from "sequelize";
 
-const sequelize = new Sequelize(
+export const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
   process.env.DB_PASS,
   {
     host: process.env.DB_HOST || "localhost",
     dialect: "mysql",
-    port: process.env.DB_PORT || 3306,
-  },
+  }
 );
 
-async function connect() {
+export async function connect() {
   try {
     await sequelize.authenticate();
     await sequelize.sync();
@@ -20,5 +22,3 @@ async function connect() {
     console.error("Erro ao conectar no SQL:", error);
   }
 }
-
-export { sequelize, connect };

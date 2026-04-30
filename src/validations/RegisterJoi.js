@@ -19,7 +19,7 @@ const registerTeacherSchema = Joi.object({
     "any.required": "Nome é obrigatório",
   }),
 
-  codigo: Joi.string().trim().min(3).required().messages({
+  code: Joi.string().trim().min(3).required().messages({
     "string.base": "Código deve ser texto",
     "string.empty": "Código é obrigatório",
     "string.min": "Código deve ter pelo menos 3 caracteres",

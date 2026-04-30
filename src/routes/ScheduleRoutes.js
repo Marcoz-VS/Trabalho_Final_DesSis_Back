@@ -4,7 +4,7 @@ import { Auth } from "../middlewares/AuthMiddleware.js";
 import { Role } from "../middlewares/RoleMiddleware.js";
 import { Validate } from "../middlewares/ValidateMiddleware.js";
 import { idParamSchema } from "../validations/IdJoi.js";
-import { updateScheduleSchema, createScheduleSchema} from '../validations/ScheduleJoi.js'
+import { updateScheduleSchema, createScheduleSchema } from '../validations/ScheduleJoi.js'
 
 const ScheduleRouter = express.Router();
 

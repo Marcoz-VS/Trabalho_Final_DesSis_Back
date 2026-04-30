@@ -1,6 +1,8 @@
 import { Schedule, Class } from "../models/Index.js";
+import { Op } from "sequelize";
 
 const ScheduleController = {
+
   getAllSchedules: async (req, res) => {
     try {
       const schedules = await Schedule.findAll({
@@ -11,12 +13,12 @@ const ScheduleController = {
         },
       });
 
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         data: schedules,
       });
     } catch (err) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Erro ao listar horários.",
         error: err.message,
@@ -43,12 +45,12 @@ const ScheduleController = {
         });
       }
 
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         data: schedule,
       });
     } catch (err) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Erro ao buscar horário.",
         error: err.message,
@@ -58,7 +60,7 @@ const ScheduleController = {
 
   createSchedule: async (req, res) => {
     try {
-      const { class_id } = req.body;
+      const { class_id, subject, day_of_week, start_time, end_time } = req.body;
 
       const classExist = await Class.findByPk(class_id);
 
@@ -69,15 +71,40 @@ const ScheduleController = {
         });
       }
 
-      const schedule = await Schedule.create(req.body);
+      // conflito real de horário (overlap)
+      const conflict = await Schedule.findOne({
+        where: {
+          class_id,
+          day_of_week,
+          [Op.and]: [
+            { start_time: { [Op.lt]: end_time } },
+            { end_time: { [Op.gt]: start_time } },
+          ],
+        },
+      });
 
-      res.status(201).json({
+      if (conflict) {
+        return res.status(409).json({
+          success: false,
+          message: "Conflito de horário nessa turma.",
+        });
+      }
+
+      const schedule = await Schedule.create({
+        class_id,
+        subject,
+        day_of_week,
+        start_time,
+        end_time,
+      });
+
+      return res.status(201).json({
         success: true,
         message: "Horário criado com sucesso!",
         data: schedule,
       });
     } catch (err) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Erro ao criar horário.",
         error: err.message,
@@ -98,14 +125,15 @@ const ScheduleController = {
         });
       }
 
-      await schedule.update(req.body);
+      const updated = await schedule.update(req.body);
 
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         message: "Horário atualizado com sucesso!",
+        data: updated,
       });
     } catch (err) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Erro ao atualizar horário.",
         error: err.message,
@@ -128,12 +156,12 @@ const ScheduleController = {
         });
       }
 
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         message: "Horário removido com sucesso!",
       });
     } catch (err) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Erro ao deletar horário.",
         error: err.message,

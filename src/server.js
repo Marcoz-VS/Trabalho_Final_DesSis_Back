@@ -25,7 +25,7 @@ app.use("/register", RegisterRouter);
 app.use("/users", UsersRouter);
 app.use("/login", LoginRouter);
 app.use("/students", StudentRouter);
-app.use("/class", ClassRouter);
+app.use("/classes", ClassRouter);
 app.use("/enrollment", EnrollmentRouter);
 app.use("/scores", ScoreRouter);
 app.use("/schedules", ScheduleRouter)

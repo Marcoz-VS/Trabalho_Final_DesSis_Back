@@ -1,15 +1,17 @@
 import Joi from "joi";
 
+const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
 const isEndAfterStart = (value, helpers) => {
   const { start_time } = helpers.state.ancestors[0];
 
-  if (!start_time) return value;
+  if (!start_time || !value) return value;
 
-  const [startH, startM] = start_time.split(":").map(Number);
-  const [endH, endM] = value.split(":").map(Number);
+  const [sh, sm] = start_time.split(":").map(Number);
+  const [eh, em] = value.split(":").map(Number);
 
-  const start = startH * 60 + startM;
-  const end = endH * 60 + endM;
+  const start = sh * 60 + sm;
+  const end = eh * 60 + em;
 
   if (end <= start) {
     return helpers.error("any.invalid");
@@ -18,80 +20,61 @@ const isEndAfterStart = (value, helpers) => {
   return value;
 };
 
-const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
-
 const createScheduleSchema = Joi.object({
   class_id: Joi.number().integer().required().messages({
-    "number.base": "class_id deve ser um número",
-    "number.integer": "class_id deve ser inteiro",
     "any.required": "class_id é obrigatório",
+    "number.base": "class_id deve ser número",
+    "number.integer": "class_id deve ser inteiro",
   }),
 
-  subject: Joi.string().trim().min(2).max(100).required().messages({
-    "string.base": "subject deve ser texto",
-    "string.empty": "subject não pode ser vazio",
-    "string.min": "subject deve ter no mínimo 2 caracteres",
+  subject: Joi.string().min(2).max(100).required().messages({
     "any.required": "subject é obrigatório",
+    "string.min": "subject muito curto",
   }),
 
   day_of_week: Joi.string()
-    .valid(
-      "monday",
-      "tuesday",
-      "wednesday",
-      "thursday",
-      "friday",
-      "saturday"
-    )
+    .valid("monday", "tuesday", "wednesday", "thursday", "friday", "saturday")
     .required()
     .messages({
-      "any.only": "day_of_week inválido",
       "any.required": "day_of_week é obrigatório",
+      "any.only": "day_of_week inválido",
     }),
 
-  start_time: Joi.string()
-    .pattern(timeRegex)
-    .required()
-    .messages({
-      "string.pattern.base": "start_time deve estar no formato HH:mm (00:00 até 23:59)",
-      "any.required": "start_time é obrigatório",
-    }),
+  start_time: Joi.string().pattern(timeRegex).required().messages({
+    "any.required": "start_time é obrigatório",
+    "string.pattern.base": "formato inválido (HH:mm)",
+  }),
 
   end_time: Joi.string()
     .pattern(timeRegex)
     .required()
     .custom(isEndAfterStart)
     .messages({
-      "string.pattern.base": "end_time deve estar no formato HH:mm (00:00 até 23:59)",
-      "any.invalid": "end_time deve ser maior que start_time",
       "any.required": "end_time é obrigatório",
+      "any.invalid": "end_time deve ser maior que start_time",
+      "string.pattern.base": "formato inválido (HH:mm)",
     }),
-}).unknown(false);
+});
 
 const updateScheduleSchema = Joi.object({
-  subject: Joi.string().trim().min(2).max(100),
-
+  subject: Joi.string().min(2).max(100),
   day_of_week: Joi.string().valid(
-    "monday",
-    "tuesday",
-    "wednesday",
-    "thursday",
-    "friday",
-    "saturday"
+    "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"
   ),
-
   start_time: Joi.string().pattern(timeRegex),
-
-  end_time: Joi.string()
-    .pattern(timeRegex)
-    .custom(isEndAfterStart)
-    .messages({
-      "any.invalid": "end_time deve ser maior que start_time",
-    }),
+  end_time: Joi.string().pattern(timeRegex),
 })
   .min(1)
-  .messages({
-    "object.min": "Envie pelo menos um campo para atualizar",
-  }).unknown(false);
+  .custom((value, helpers) => {
+    if (value.start_time && value.end_time) {
+      const [sh, sm] = value.start_time.split(":").map(Number);
+      const [eh, em] = value.end_time.split(":").map(Number);
+
+      if (eh * 60 + em <= sh * 60 + sm) {
+        return helpers.error("any.invalid");
+      }
+    }
+    return value;
+  });
 
 export { createScheduleSchema, updateScheduleSchema };
