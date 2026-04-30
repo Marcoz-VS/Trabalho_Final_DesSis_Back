@@ -1,5 +1,10 @@
 import { Class, User } from "../models/Index.js";
 
+const fallbackProfessor = {
+  id: null,
+  name: "Professor removido",
+};
+
 const ClassController = {
   getAllClasses: async (req, res) => {
     try {
@@ -11,25 +16,22 @@ const ClassController = {
         },
       });
 
-      const formatted = resultado.map((c) => {
-        const obj = c.toJSON();
+      const formatted = resultado.map((classe) => {
+        const obj = classe.toJSON();
 
         if (!obj.professor) {
-          obj.professor = {
-          id: null,
-          name: "Professor removido",
+          obj.professor = fallbackProfessor;
         }
-      };
 
         return obj;
       });
 
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         data: formatted,
       });
     } catch (error) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Erro ao listar turmas.",
         error: error.message,
@@ -58,55 +60,45 @@ const ClassController = {
 
       const obj = resultado.toJSON();
 
-      const formatted = () => {
-        if (!obj.professor) {
-          obj.professor = {
-          id: null,
-          name: "Professor removido",
-          }
-        }
-      };
+      if (!obj.professor) {
+        obj.professor = fallbackProfessor;
+      }
 
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         data: obj,
       });
     } catch (error) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Erro ao buscar turma.",
+        error: error.message,
       });
     }
   },
 
   createClass: async (req, res) => {
     try {
-      const { professor_id, description, name, year, semester } = req.body;
+      const { professor_id } = req.body;
 
       const professor = await User.findByPk(professor_id);
 
       if (!professor || professor.role !== "professor") {
-        return res.status(404).json({
+        return res.status(400).json({
           success: false,
-          message: "Professor inválido",
+          message: "Professor inválido.",
         });
       }
 
-      const resultado = await Class.create({
-        professor_id,
-        description,
-        name,
-        year,
-        semester,
-      });
+      const resultado = await Class.create(req.body);
 
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         message: "Turma criada com sucesso!",
         data: resultado,
       });
     } catch (err) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Erro ao criar turma.",
         error: err.message,
@@ -118,37 +110,37 @@ const ClassController = {
     try {
       const { id } = req.params;
 
-      const classExistente = await Class.findByPk(id);
+      const turma = await Class.findByPk(id);
 
-      if (!classExistente) {
+      if (!turma) {
         return res.status(404).json({
           success: false,
           message: "Turma não encontrada.",
         });
       }
 
-      const { name, semester, year, description, professor_id } = req.body;
+      if (req.body.professor_id !== undefined) {
+        const professor = await User.findByPk(req.body.professor_id);
 
-      const dadosAtualizados = {};
+        if (!professor || professor.role !== "professor") {
+          return res.status(400).json({
+            success: false,
+            message: "Professor inválido.",
+          });
+        }
+      }
 
-      if (name !== undefined) dadosAtualizados.name = name;
-      if (semester !== undefined) dadosAtualizados.semester = semester;
-      if (year !== undefined) dadosAtualizados.year = year;
-      if (description !== undefined) dadosAtualizados.description = description;
-      if (professor_id !== undefined)
-        dadosAtualizados.professor_id = professor_id;
+      await turma.update(req.body);
 
-      classExistente.set(dadosAtualizados);
-      await classExistente.save();
-
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         message: "Turma atualizada com sucesso!",
       });
     } catch (err) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Erro ao atualizar turma.",
+        error: err.message,
       });
     }
   },
@@ -157,23 +149,26 @@ const ClassController = {
     try {
       const { id } = req.params;
 
-      const deletado = await Class.destroy({ where: { id } });
+      const deleted = await Class.destroy({
+        where: { id },
+      });
 
-      if (!deletado) {
+      if (!deleted) {
         return res.status(404).json({
           success: false,
           message: "Turma não encontrada.",
         });
       }
 
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         message: "Turma removida com sucesso!",
       });
     } catch (err) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Erro ao deletar turma.",
+        error: err.message,
       });
     }
   },

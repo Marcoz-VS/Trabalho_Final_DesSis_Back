@@ -11,7 +11,10 @@ const ScheduleController = {
         },
       });
 
-      res.status(200).json({ success: true, data: schedules });
+      res.status(200).json({
+        success: true,
+        data: schedules,
+      });
     } catch (err) {
       res.status(500).json({
         success: false,
@@ -23,11 +26,7 @@ const ScheduleController = {
 
   getScheduleById: async (req, res) => {
     try {
-      const id = Number(req.params.id);
-
-      if (!Number.isInteger(id)) {
-        return res.status(400).json({ success: false, message: "ID inválido" });
-      }
+      const { id } = req.params;
 
       const schedule = await Schedule.findByPk(id, {
         include: {
@@ -44,7 +43,10 @@ const ScheduleController = {
         });
       }
 
-      res.status(200).json({ success: true, data: schedule });
+      res.status(200).json({
+        success: true,
+        data: schedule,
+      });
     } catch (err) {
       res.status(500).json({
         success: false,
@@ -56,9 +58,10 @@ const ScheduleController = {
 
   createSchedule: async (req, res) => {
     try {
-      const { class_id, subject, day_of_week, start_time, end_time } = req.body;
+      const { class_id } = req.body;
 
       const classExist = await Class.findByPk(class_id);
+
       if (!classExist) {
         return res.status(404).json({
           success: false,
@@ -66,13 +69,7 @@ const ScheduleController = {
         });
       }
 
-      const schedule = await Schedule.create({
-        class_id,
-        subject,
-        day_of_week,
-        start_time,
-        end_time,
-      });
+      const schedule = await Schedule.create(req.body);
 
       res.status(201).json({
         success: true,
@@ -90,11 +87,7 @@ const ScheduleController = {
 
   updateSchedule: async (req, res) => {
     try {
-      const id = Number(req.params.id);
-
-      if (!Number.isInteger(id)) {
-        return res.status(400).json({ success: false, message: "ID inválido" });
-      }
+      const { id } = req.params;
 
       const schedule = await Schedule.findByPk(id);
 
@@ -105,10 +98,7 @@ const ScheduleController = {
         });
       }
 
-      const { subject, day_of_week, start_time, end_time } = req.body;
-
-      schedule.set({ subject, day_of_week, start_time, end_time });
-      await schedule.save();
+      await schedule.update(req.body);
 
       res.status(200).json({
         success: true,
@@ -125,13 +115,11 @@ const ScheduleController = {
 
   deleteSchedule: async (req, res) => {
     try {
-      const id = Number(req.params.id);
+      const { id } = req.params;
 
-      if (!Number.isInteger(id)) {
-        return res.status(400).json({ success: false, message: "ID inválido" });
-      }
-
-      const deleted = await Schedule.destroy({ where: { id } });
+      const deleted = await Schedule.destroy({
+        where: { id },
+      });
 
       if (!deleted) {
         return res.status(404).json({

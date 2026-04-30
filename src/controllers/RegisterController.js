@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import { generateCredentials } from "../utils/generateCredentials.js";
 
 const RegisterController = {
-  register: async (req, res) => {
+  regisregisterStudentter: async (req, res) => {
     try {
       const { name } = req.body;
 
@@ -47,7 +47,7 @@ const RegisterController = {
       const codigoSecreto = process.env.CODE;
 
       if (codigo !== codigoSecreto) {
-        return res.status(400).json({
+        return res.status(403).json({
           success: false,
           message:
             "Código errado, entre em contato com a secretária para mais informações",

@@ -9,6 +9,6 @@ const loginSchema = Joi.object({
   password: Joi.string().required().messages({
     "any.required": "Senha é obrigatória",
   }),
-});
+}).unknown(false);
 
 export { loginSchema };

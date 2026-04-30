@@ -31,7 +31,7 @@ const createClassSchema = Joi.object({
     "any.only": "semester deve ser 1 ou 2",
     "any.required": "semester é obrigatório",
   }),
-});
+}).unknown(false);
 
 const updateClassSchema = Joi.object({
   professor_id: Joi.number().integer(),
@@ -45,6 +45,7 @@ const updateClassSchema = Joi.object({
   semester: Joi.number().integer().valid(1, 2),
 })
   .min(1)
+  .unknown(false)
   .messages({
     "object.min": "Envie pelo menos um campo para atualizar",
   });

@@ -40,15 +40,6 @@ const ScoreController = {
     try {
       const { id } = req.params;
 
-      const enrollment = await Enrollment.findByPk(id);
-
-      if (!enrollment) {
-        return res.status(404).json({
-          success: false,
-          message: "Matrícula não encontrada.",
-        });
-      }
-
       const scores = await Score.findAll({
         where: { enrollment_id: id },
       });
@@ -66,15 +57,6 @@ const ScoreController = {
   createScore: async (req, res) => {
     try {
       const { enrollment_id, assessment, value } = req.body;
-
-      const enrollment = await Enrollment.findByPk(enrollment_id);
-
-      if (!enrollment) {
-        return res.status(404).json({
-          success: false,
-          message: "Matrícula não encontrada.",
-        });
-      }
 
       const resultado = await Score.create({
         enrollment_id,
@@ -109,15 +91,7 @@ const ScoreController = {
         });
       }
 
-      const { assessment, value } = req.body;
-
-      const dadosAtualizados = {};
-
-      if (assessment !== undefined) dadosAtualizados.assessment = assessment;
-      if (value !== undefined) dadosAtualizados.value = value;
-
-      score.set(dadosAtualizados);
-      await score.save();
+      await score.update(req.body);
 
       res.status(200).json({
         success: true,
@@ -136,7 +110,9 @@ const ScoreController = {
     try {
       const { id } = req.params;
 
-      const deleted = await Score.destroy({ where: { id } });
+      const deleted = await Score.destroy({
+        where: { id },
+      });
 
       if (!deleted) {
         return res.status(404).json({

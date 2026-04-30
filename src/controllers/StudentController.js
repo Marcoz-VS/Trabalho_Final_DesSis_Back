@@ -11,9 +11,12 @@ const StudentController = {
         },
       });
 
-      res.status(200).json({ success: true, data: students });
+      return res.status(200).json({
+        success: true,
+        data: students,
+      });
     } catch (error) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Erro ao listar estudantes.",
         error: error.message,
@@ -24,13 +27,6 @@ const StudentController = {
   getStudentById: async (req, res) => {
     try {
       const { id } = req.params;
-
-      if (req.user.id !== id) {
-        return res.status(403).json({
-          success: false,
-          message: "Usuário não tem permissão para realizar a consulta"
-        })
-      }
 
       const student = await Student.findByPk(id, {
         include: {
@@ -47,11 +43,15 @@ const StudentController = {
         });
       }
 
-      res.status(200).json({ success: true, data: student });
+      return res.status(200).json({
+        success: true,
+        data: student,
+      });
     } catch (error) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Erro ao buscar estudante.",
+        error: error.message,
       });
     }
   },
@@ -77,7 +77,7 @@ const StudentController = {
         avatar_url,
       });
 
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         message: "Estudante criado com sucesso!",
         data: student,
@@ -90,7 +90,7 @@ const StudentController = {
         });
       }
 
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Erro interno ao criar estudante.",
         error: err.message,
@@ -101,7 +101,6 @@ const StudentController = {
   updateStudent: async (req, res) => {
     try {
       const { id } = req.params;
-      const { birth_date, phone, avatar_url } = req.body;
 
       const student = await Student.findByPk(id);
 
@@ -112,21 +111,14 @@ const StudentController = {
         });
       }
 
-      const updatedData = {};
+      await student.update(req.body);
 
-      if (birth_date !== undefined) updatedData.birth_date = birth_date;
-      if (phone !== undefined) updatedData.phone = phone;
-      if (avatar_url !== undefined) updatedData.avatar_url = avatar_url;
-
-      student.set(updatedData);
-      await student.save();
-
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         message: "Perfil de estudante atualizado com sucesso!",
       });
     } catch (err) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Erro ao atualizar estudante.",
         error: err.message,
@@ -138,7 +130,9 @@ const StudentController = {
     try {
       const { id } = req.params;
 
-      const deleted = await Student.destroy({ where: { id } });
+      const deleted = await Student.destroy({
+        where: { id },
+      });
 
       if (!deleted) {
         return res.status(404).json({
@@ -147,14 +141,15 @@ const StudentController = {
         });
       }
 
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         message: "Estudante removido com sucesso!",
       });
     } catch (error) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Erro ao excluir estudante.",
+        error: error.message,
       });
     }
   },

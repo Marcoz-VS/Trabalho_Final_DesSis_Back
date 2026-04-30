@@ -34,7 +34,8 @@ ScheduleRouter.post(
 ScheduleRouter.put(
   "/:id",
   Role("admin"),
-  Validate(idParamSchema, "params", updateScheduleSchema),
+  Validate(idParamSchema, "params"),
+  Validate(updateScheduleSchema),
   ScheduleController.updateSchedule
 );
 

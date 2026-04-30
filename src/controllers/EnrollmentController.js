@@ -64,13 +64,6 @@ const EnrollmentController = {
         },
       });
 
-      if (!enrollments.length) {
-        return res.status(404).json({
-          success: false,
-          message: "Nenhuma matrícula encontrada para este estudante.",
-        });
-      }
-
       res.status(200).json({
         success: true,
         data: enrollments,
@@ -101,13 +94,6 @@ const EnrollmentController = {
         },
       });
 
-      if (!enrollments.length) {
-        return res.status(404).json({
-          success: false,
-          message: "Nenhuma matrícula encontrada nesta turma.",
-        });
-      }
-
       res.status(200).json({
         success: true,
         data: enrollments,
@@ -134,8 +120,9 @@ const EnrollmentController = {
         });
       }
 
-      enrollment.status = "inactive";
-      await enrollment.save();
+      await enrollment.update({
+        status: "inactive",
+      });
 
       res.status(200).json({
         success: true,

@@ -4,6 +4,13 @@ export const Ownership = (policy, getResourceId) => {
       const user = req.user;
       const resourceId = getResourceId(req);
 
+      if (resourceId === undefined || resourceId === null) {
+        return res.status(400).json({
+          success: false,
+          message: "Recurso não informado",
+        });
+      }
+
       const allowed = await policy(user, resourceId);
 
       if (!allowed) {

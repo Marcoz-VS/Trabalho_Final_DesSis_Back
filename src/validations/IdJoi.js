@@ -5,5 +5,5 @@ export const idParamSchema = Joi.object({
     'number.base': 'ID deve ser um número',
     'number.integer': 'ID deve ser inteiro',
     'any.required': 'ID é obrigatório',
-  }),
+  }).unknown(false),
 });

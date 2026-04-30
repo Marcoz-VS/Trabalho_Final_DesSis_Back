@@ -20,7 +20,7 @@ const createScoreSchema = Joi.object({
     "number.max": "value não pode ser maior que 10",
     "any.required": "value é obrigatório",
   }),
-});
+}).unknown(false);
 
 const updateScoreSchema = Joi.object({
   assessment: Joi.string().min(2).max(100),
@@ -30,6 +30,6 @@ const updateScoreSchema = Joi.object({
   .min(1)
   .messages({
     "object.min": "Envie pelo menos um campo para atualizar",
-  });
+  }).unknown(false);
 
 export { createScoreSchema, updateScoreSchema };

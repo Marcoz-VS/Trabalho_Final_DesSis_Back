@@ -8,9 +8,12 @@ const UsersController = {
         attributes: { exclude: ["password"] },
       });
 
-      res.status(200).json({ success: true, data: users });
+      return res.status(200).json({
+        success: true,
+        data: users,
+      });
     } catch (error) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Erro ao listar usuários.",
         error: error.message,
@@ -21,13 +24,6 @@ const UsersController = {
   getById: async (req, res) => {
     try {
       const { id } = req.params;
-
-      if (req.user.id !== id) {
-        return res.status(403).json({
-          success: false,
-          message: "Usuário não tem permissão para realizar a consulta"
-        })
-      }
 
       const user = await User.findByPk(id, {
         attributes: { exclude: ["password"] },
@@ -40,11 +36,15 @@ const UsersController = {
         });
       }
 
-      res.status(200).json({ success: true, data: user });
+      return res.status(200).json({
+        success: true,
+        data: user,
+      });
     } catch (error) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Erro ao buscar usuário.",
+        error: error.message,
       });
     }
   },
@@ -52,14 +52,7 @@ const UsersController = {
   update: async (req, res) => {
     try {
       const { id } = req.params;
-      const { name, email, password } = req.body;
-
-      if (req.user.id !== id) {
-        return res.status(403).json({
-          success: false,
-          message: "Usuário não tem permissão para realizar a consulta"
-        })
-      }
+      const { password, ...rest } = req.body;
 
       const user = await User.findByPk(id);
 
@@ -70,19 +63,15 @@ const UsersController = {
         });
       }
 
-      const updatedData = {};
-
-      if (name !== undefined) updatedData.name = name;
-      if (email !== undefined) updatedData.email = email;
+      const updatedData = { ...rest };
 
       if (password && password.trim()) {
         updatedData.password = await bcrypt.hash(password, 10);
       }
 
-      user.set(updatedData);
-      await user.save();
+      await user.update(updatedData);
 
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         message: "Perfil atualizado com sucesso!",
       });
@@ -94,8 +83,9 @@ const UsersController = {
         });
       }
 
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
+        message: "Erro ao atualizar usuário.",
         error: error.message,
       });
     }
@@ -117,7 +107,7 @@ const UsersController = {
 
       const updatedData = {};
 
-      if (req.user.firstTime === true) {
+      if (user.firstTime) {
         updatedData.firstTime = false;
       }
 
@@ -125,17 +115,16 @@ const UsersController = {
         updatedData.password = await bcrypt.hash(password, 10);
       }
 
-      user.set(updatedData);
-      await user.save();
+      await user.update(updatedData);
 
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
-        message: "Perfil atualizado com sucesso!",
+        message: "Senha alterada com sucesso!",
       });
-
     } catch (error) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
+        message: "Erro ao atualizar senha.",
         error: error.message,
       });
     }
@@ -145,7 +134,9 @@ const UsersController = {
     try {
       const { id } = req.params;
 
-      const deleted = await User.destroy({ where: { id } });
+      const deleted = await User.destroy({
+        where: { id },
+      });
 
       if (!deleted) {
         return res.status(404).json({
@@ -154,14 +145,15 @@ const UsersController = {
         });
       }
 
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         message: "Usuário removido com sucesso!",
       });
     } catch (error) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Erro ao excluir usuário.",
+        error: error.message,
       });
     }
   },

@@ -12,6 +12,6 @@ const enrollStudentSchema = Joi.object({
     "number.integer": "class_id deve ser inteiro",
     "any.required": "class_id é obrigatório",
   }),
-});
+}).unknown(false);
 
 export { enrollStudentSchema };

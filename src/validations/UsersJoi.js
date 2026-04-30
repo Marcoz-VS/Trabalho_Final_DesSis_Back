@@ -7,16 +7,14 @@ const updateSchema = Joi.object({
 
   password: Joi.string()
     .pattern(/^[a-zA-Z0-9]{3,30}$/)
-    .allow("")
     .optional(),
 
-}).min(1);
+}).min(1).unknown(false);
 
 const firstTimeUpdateSchema = Joi.object({
   password: Joi.string()
     .pattern(/^[a-zA-Z0-9]{3,30}$/)
-    .allow("")
     .optional(),
-}).min(1);
+}).min(1).unknown(false);
 
 export { updateSchema, firstTimeUpdateSchema };

@@ -29,12 +29,14 @@ const studentSchema = Joi.object({
   avatar_url: Joi.string().uri().optional().messages({
     "string.uri": "avatar_url deve ser uma URL válida",
   }),
-});
+}).unknown(false);
 
 const updateStudentSchema = Joi.object({
   birth_date: Joi.date().iso(),
-  phone: Joi.string(),
+  phone: Joi.string().pattern(/^[0-9+\-\s()]+$/),
   avatar_url: Joi.string().uri(),
-});
+})
+  .min(1)
+  .unknown(false);
 
 export { studentSchema, updateStudentSchema };

@@ -1,13 +1,30 @@
 import Joi from "joi";
 
-const registerSchema = Joi.object({
-  name: Joi.string().min(3).max(255).required().messages({
-    "string.min": "O nome deve ter pelo menos 3 caracteres.",
-    "any.required": "O nome é obrigatório.",
+const registerStudentSchema = Joi.object({
+  name: Joi.string().trim().min(3).max(255).required().messages({
+    "string.base": "Nome deve ser texto",
+    "string.empty": "Nome é obrigatório",
+    "string.min": "Nome deve ter pelo menos 3 caracteres",
+    "string.max": "Nome deve ter no máximo 255 caracteres",
+    "any.required": "Nome é obrigatório",
   }),
-  codigo: Joi.string().min(3).messages({
-    "string.min": "O codigo deve ter pelo menos 3 caracteres."
-  })
-});
+}).unknown(false);
 
-export { registerSchema };
+const registerTeacherSchema = Joi.object({
+  name: Joi.string().trim().min(3).max(255).required().messages({
+    "string.base": "Nome deve ser texto",
+    "string.empty": "Nome é obrigatório",
+    "string.min": "Nome deve ter pelo menos 3 caracteres",
+    "string.max": "Nome deve ter no máximo 255 caracteres",
+    "any.required": "Nome é obrigatório",
+  }),
+
+  codigo: Joi.string().trim().min(3).required().messages({
+    "string.base": "Código deve ser texto",
+    "string.empty": "Código é obrigatório",
+    "string.min": "Código deve ter pelo menos 3 caracteres",
+    "any.required": "Código é obrigatório",
+  }),
+}).unknown(false);
+
+export { registerStudentSchema, registerTeacherSchema };

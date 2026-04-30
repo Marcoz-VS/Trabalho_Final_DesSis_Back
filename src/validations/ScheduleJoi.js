@@ -1,6 +1,5 @@
 import Joi from "joi";
 
-// função auxiliar pra comparar horários
 const isEndAfterStart = (value, helpers) => {
   const { start_time } = helpers.state.ancestors[0];
 
@@ -67,7 +66,7 @@ const createScheduleSchema = Joi.object({
       "any.invalid": "end_time deve ser maior que start_time",
       "any.required": "end_time é obrigatório",
     }),
-});
+}).unknown(false);
 
 const updateScheduleSchema = Joi.object({
   subject: Joi.string().trim().min(2).max(100),
@@ -93,6 +92,6 @@ const updateScheduleSchema = Joi.object({
   .min(1)
   .messages({
     "object.min": "Envie pelo menos um campo para atualizar",
-  });
+  }).unknown(false);
 
 export { createScheduleSchema, updateScheduleSchema };

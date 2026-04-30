@@ -13,19 +13,29 @@ const ClassRouter = express.Router();
 
 ClassRouter.use(Auth);
 
-ClassRouter.get("/", ClassController.getAllClasses);
+ClassRouter.get(
+  "/",
+  Role("admin", "professor", "student"),
+  ClassController.getAllClasses,
+);
 
 ClassRouter.get(
   "/:id",
+  Role("admin", "professor", "student"),
   Validate(idParamSchema, "params"),
   ClassController.getClassById,
 );
 
-ClassRouter.post("/", Role('admin'), Validate(createClassSchema), ClassController.createClass);
+ClassRouter.post(
+  "/",
+  Role("admin"),
+  Validate(createClassSchema),
+  ClassController.createClass,
+);
 
 ClassRouter.put(
   "/:id",
-  Role('admin'),
+  Role("admin"),
   Validate(idParamSchema, "params"),
   Validate(updateClassSchema),
   ClassController.updateClass,
@@ -33,7 +43,7 @@ ClassRouter.put(
 
 ClassRouter.delete(
   "/:id",
-  Role('admin'),
+  Role("admin"),
   Validate(idParamSchema, "params"),
   ClassController.deleteClass,
 );
