@@ -1,4 +1,4 @@
-import { User } from "../models/Index.js";
+import { User, Student } from "../models/Index.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -9,26 +9,30 @@ const LoginController = {
 
       const emailNormalizado = email.toLowerCase();
 
-      const user = await User.findOne({
-        where: { email: emailNormalizado },
-        include: [
-          {
-            model: Student,
-            as: "student",
-          },
-        ],
-      });
 
-      const senhaValida = user
-        ? await bcrypt.compare(password, user.password)
-        : false;
+const user = await User.findOne({
+  where: { email: emailNormalizado },
+  include: [
+    {
+      model: Student,
+      as: "student",
+    },
+  ],
+});
 
-      if (!senhaValida) {
-        return res.status(401).json({
-          success: false,
-          message: "E-mail ou senha incorretos.",
-        });
-      }
+if (!user) {
+  return res.status(404).json({
+    success: false,
+    message: "Usuário não encontrado",
+  });
+}
+
+console.log("Senha digitada:", password);
+console.log("Hash no banco:", user.password);
+
+const senhaValida = await bcrypt.compare(password.trim(), user.password);
+
+console.log("Senha válida?", senhaValida);
 
       const chaveSecreta = process.env.CHAVE_JWT;
 

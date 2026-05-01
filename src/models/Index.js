@@ -25,8 +25,11 @@ User.hasMany(Class, {
   onDelete: "SET NULL",
 });
 Class.belongsTo(User, {
-  foreignKey: "professor_id",
-  as: "professor",
+  foreignKey: {
+    name: "professor_id",
+    allowNull: true
+  },
+  onDelete: "SET NULL",
 });
 
 // CLASS → SCHEDULE
