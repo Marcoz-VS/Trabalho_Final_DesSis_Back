@@ -27,12 +27,16 @@ if (!user) {
   });
 }
 
-console.log("Senha digitada:", password);
-console.log("Hash no banco:", user.password);
 
 const senhaValida = await bcrypt.compare(password.trim(), user.password);
 
-console.log("Senha válida?", senhaValida);
+
+if (!senhaValida) {
+  return res.status(401).json({
+    success: false,
+    message: "Senha incorreta",
+  });
+}
 
       const chaveSecreta = process.env.CHAVE_JWT;
 

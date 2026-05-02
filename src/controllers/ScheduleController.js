@@ -1,4 +1,4 @@
-import { Schedule, Class } from "../models/Index.js";
+import { Schedule, Class, Enrollment } from "../models/Index.js";
 import { Op } from "sequelize";
 
 const ScheduleController = {
@@ -24,6 +24,34 @@ const ScheduleController = {
         error: err.message,
       });
     }
+  },
+
+  getScheduleByStudent: async (req, res) => {
+   try{
+      const { id } = req.params;
+
+    const schedules = await Schedule.findAll({
+      include: [
+        {
+          model: Class,
+          as: "class",
+          required: true,
+          include: [
+            {
+              model: Enrollment,
+              as: "enrollments",
+              where: { student_id: id },
+              attributes: []
+            }
+          ]
+        }
+      ]
+    });
+
+    res.json({ success: true, data: schedules });
+   }catch(err){
+    res.status(500).json({ error: err.message });
+   }
   },
 
   getScheduleById: async (req, res) => {

@@ -5,6 +5,8 @@ import { Role } from "../middlewares/RoleMiddleware.js";
 import { Validate } from "../middlewares/ValidateMiddleware.js";
 import { idParamSchema } from "../validations/IdJoi.js";
 import { updateScheduleSchema, createScheduleSchema } from '../validations/ScheduleJoi.js'
+import { Ownership } from "../middlewares/OwnershipMiddleware.js";
+import StudentPolicy from "../policies/StudentPolicy.js";
 
 const ScheduleRouter = express.Router();
 
@@ -15,6 +17,13 @@ ScheduleRouter.get(
   Role("admin", "professor", "student"),
   ScheduleController.getAllSchedules
 );
+
+ScheduleRouter.get(
+ "/student/:id",
+  Role("student"),
+  Ownership(StudentPolicy.byStudent, (req) => req.params.id),
+  ScheduleController.getScheduleByStudent
+)
 
 
 ScheduleRouter.get(
