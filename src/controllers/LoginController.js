@@ -65,6 +65,7 @@ console.log("Senha válida?", senhaValida);
                 id: user.student.id,
               }
             : null,
+            firstTime: user.firstTime
         },
       });
     } catch (error) {

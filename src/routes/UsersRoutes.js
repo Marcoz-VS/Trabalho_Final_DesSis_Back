@@ -26,13 +26,12 @@ UsersRouter.get(
 );
 
 UsersRouter.put(
-  "/:id",
+  "/change-password",
   Role("admin", "student", "professor"),
-  Validate(idParamSchema, "params"),
-  Validate(updateSchema),
-  Ownership(UserPolicy.byUser, (req) => req.params.id),
-  UsersController.update,
+  Validate(firstTimeUpdateSchema),
+  UsersController.changePassword
 );
+
 
 UsersRouter.patch(
   "/firstTimeUpdate/:id",

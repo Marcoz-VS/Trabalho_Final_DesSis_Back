@@ -17,4 +17,30 @@ const firstTimeUpdateSchema = Joi.object({
     .optional(),
 }).min(1).unknown(false);
 
-export { updateSchema, firstTimeUpdateSchema };
+const changePasswordSchema = Joi.object({
+  current_password: Joi.string()
+    .min(6)
+    .max(100)
+    .required()
+    .messages({
+      "string.base": "Senha atual deve ser um texto",
+      "string.empty": "Senha atual é obrigatória",
+      "string.min": "Senha atual inválida",
+      "any.required": "Senha atual é obrigatória",
+    }),
+
+  new_password: Joi.string()
+    .min(6)
+    .max(100)
+    .required()
+    .invalid(Joi.ref("current_password"))
+    .messages({
+      "string.base": "Nova senha deve ser um texto",
+      "string.empty": "Nova senha é obrigatória",
+      "string.min": "Nova senha deve ter no mínimo 6 caracteres",
+      "any.required": "Nova senha é obrigatória",
+      "any.invalid": "Nova senha não pode ser igual à senha atual",
+    }),
+});
+
+export { updateSchema, firstTimeUpdateSchema, changePasswordSchema };

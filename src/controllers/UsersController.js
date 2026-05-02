@@ -49,47 +49,49 @@ const UsersController = {
     }
   },
 
-  update: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { password, ...rest } = req.body;
+changePassword: async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { current_password, new_password } = req.body;
 
-      const user = await User.findByPk(id);
+    const user = await User.findByPk(userId);
 
-      if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: "Usuário não encontrado.",
-        });
-      }
-
-      const updatedData = { ...rest };
-
-      if (password && password.trim()) {
-        updatedData.password = await bcrypt.hash(password, 10);
-      }
-
-      await user.update(updatedData);
-
-      return res.status(200).json({
-        success: true,
-        message: "Perfil atualizado com sucesso!",
-      });
-    } catch (error) {
-      if (error.name === "SequelizeUniqueConstraintError") {
-        return res.status(409).json({
-          success: false,
-          message: "E-mail já cadastrado.",
-        });
-      }
-
-      return res.status(500).json({
+    if (!user) {
+      return res.status(404).json({
         success: false,
-        message: "Erro ao atualizar usuário.",
-        error: error.message,
+        message: "Usuário não encontrado."
       });
     }
-  },
+
+    const isMatch = await bcrypt.compare(
+      current_password,
+      user.password
+    );
+
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Senha atual incorreta."
+      });
+    }
+
+    const newHash = await bcrypt.hash(new_password, 10);
+
+    await user.update({ password: newHash });
+
+    res.status(200).json({
+      success: true,
+      message: "Senha alterada com sucesso!"
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Erro ao alterar senha",
+      error: err.message
+    });
+  }
+},
 
   updateFirstTimePassword: async (req, res) => {
     try {
