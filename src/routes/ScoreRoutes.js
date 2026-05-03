@@ -25,6 +25,12 @@ ScoreRouter.get(
   ScoreController.getScoresByEnrollment,
 );
 
+ScoreRouter.get(
+  "/me",
+  Role("professor"),
+  ScoreController.getScoresByTeacher
+);
+
 ScoreRouter.post(
   "/",
   Role("admin", "professor"),

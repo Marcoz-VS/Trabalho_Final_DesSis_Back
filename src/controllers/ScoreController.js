@@ -54,6 +54,48 @@ const ScoreController = {
     }
   },
 
+  getScoresByTeacher: async (req, res) => {
+  try {
+    const scores = await Score.findAll({
+      include: [
+        {
+          model: Enrollment,
+          as: "enrollment",
+          required: true,
+          include: [
+            {
+              model: Class,
+              as: "class",
+              required: true,
+              where: {
+                professor_id: req.user.id,
+              },
+              attributes: ["id", "name"],
+            },
+            {
+              model: Student,
+              as: "student",
+              include: {
+                model: User,
+                as: "user",
+                attributes: { exclude: ["password"] },
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    res.status(200).json({ success: true, data: scores });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Erro ao buscar notas do professor.",
+      error: err.message,
+    });
+  }
+},
+
   createScore: async (req, res) => {
     try {
       const { enrollment_id, assessment, value } = req.body;

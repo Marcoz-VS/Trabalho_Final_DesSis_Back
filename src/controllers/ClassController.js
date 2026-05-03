@@ -1,4 +1,4 @@
-import { Class, User } from "../models/Index.js";
+import { Class, User, Enrollment } from "../models/Index.js";
 
 const fallbackProfessor = {
   id: null,
@@ -6,38 +6,57 @@ const fallbackProfessor = {
 };
 
 const ClassController = {
-  getAllClasses: async (req, res) => {
-    try {
-      const resultado = await Class.findAll({
-        include: {
-          model: User,
-          as: "professor",
-          attributes: ["id", "name"],
-        },
-      });
 
-      const formatted = resultado.map((classe) => {
-        const obj = classe.toJSON();
+getAllClasses: async (req, res) => {
+  try {
+    const { role, id, student } = req.user;
 
-        if (!obj.professor) {
-          obj.professor = fallbackProfessor;
-        }
+    let classes;
 
-        return obj;
-      });
+    // 🔓 ADMIN → vê tudo
+    if (role === "admin") {
+      classes = await Class.findAll();
+    }
 
-      return res.status(200).json({
-        success: true,
-        data: formatted,
-      });
-    } catch (error) {
-      return res.status(500).json({
-        success: false,
-        message: "Erro ao listar turmas.",
-        error: error.message,
+    // 👨‍🏫 PROFESSOR → só as dele
+    if (role === "professor") {
+      classes = await Class.findAll({
+        where: { professor_id: id },
       });
     }
-  },
+
+    // 👨‍🎓 STUDENT → só onde está matriculado
+    if (role === "student") {
+      if (!student) {
+        return res.status(403).json({ message: "Usuário não é aluno" });
+      }
+
+      classes = await Class.findAll({
+        include: [
+          {
+            model: Enrollment,
+            as: "enrollments",
+            where: { student_id: student },
+            attributes: [],
+          },
+        ],
+        distinct: true,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: classes,
+    });
+
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Erro ao listar turmas.",
+      error: err.message,
+    });
+  }
+},
 
   getClassById: async (req, res) => {
     try {

@@ -107,6 +107,44 @@ const EnrollmentController = {
     }
   },
 
+  getEnrollmentsByTeacher: async (req, res) => {
+  try {
+    const enrollments = await Enrollment.findAll({
+      include: [
+        {
+          model: Class,
+          as: "class",
+          required: true,
+          where: {
+            professor_id: req.user.id,
+          },
+          attributes: ["id", "name"],
+        },
+        {
+          model: Student,
+          as: "student",
+          include: {
+            model: User,
+            as: "user",
+            attributes: ["id", "name", "email"],
+          },
+        },
+      ],
+    });
+
+    res.status(200).json({
+      success: true,
+      data: enrollments,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Erro ao buscar alunos do professor.",
+      error: err.message,
+    });
+  }
+},
+
   cancelEnrollment: async (req, res) => {
     try {
       const { id } = req.params;

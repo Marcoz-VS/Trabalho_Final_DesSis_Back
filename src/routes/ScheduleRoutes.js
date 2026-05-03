@@ -8,6 +8,7 @@ import { updateScheduleSchema, createScheduleSchema } from '../validations/Sched
 import { Ownership } from "../middlewares/OwnershipMiddleware.js";
 import StudentPolicy from "../policies/StudentPolicy.js";
 
+
 const ScheduleRouter = express.Router();
 
 ScheduleRouter.use(Auth);
@@ -19,12 +20,16 @@ ScheduleRouter.get(
 );
 
 ScheduleRouter.get(
- "/student/:id",
+  "/me/student",
   Role("student"),
-  Ownership(StudentPolicy.byStudent, (req) => req.params.id),
   ScheduleController.getScheduleByStudent
-)
+);
 
+ScheduleRouter.get(
+  "/me/professor",
+  Role("professor"),
+  ScheduleController.getScheduleByTeacher
+);
 
 ScheduleRouter.get(
   "/:id",

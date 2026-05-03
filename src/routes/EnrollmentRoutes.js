@@ -28,6 +28,12 @@ EnrollmentRouter.get(
   EnrollmentController.getEnrollmentByClass,
 );
 
+EnrollmentRouter.get(
+  "/me",
+  Role("professor"),
+  EnrollmentController.getEnrollmentsByTeacher
+);
+
 EnrollmentRouter.post(
   "/",
   Role("admin"),

@@ -28,7 +28,6 @@ const ScheduleController = {
 
   getScheduleByStudent: async (req, res) => {
    try{
-      const { id } = req.params;
 
     const schedules = await Schedule.findAll({
       include: [
@@ -40,7 +39,7 @@ const ScheduleController = {
             {
               model: Enrollment,
               as: "enrollments",
-              where: { student_id: id },
+              where: { student_id: req.user.student },
               attributes: []
             }
           ]
@@ -53,6 +52,28 @@ const ScheduleController = {
     res.status(500).json({ error: err.message });
    }
   },
+
+  getScheduleByTeacher: async (req, res) => {
+   try{
+
+    const schedules = await Schedule.findAll({
+      include: [
+        {
+          model: Class,
+          as: "class",
+          required: true,
+          where: { professor_id: req.user.id },
+          attributes: []
+        }
+      ]
+    });
+
+    res.json({ success: true, data: schedules });
+   }catch(err){
+    res.status(500).json({ error: err.message });
+   }
+  },
+
 
   getScheduleById: async (req, res) => {
     try {
