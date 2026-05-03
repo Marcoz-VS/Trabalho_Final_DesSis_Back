@@ -20,5 +20,6 @@ export async function connect() {
     console.log("Conexão SQL estabelecida com sucesso!");
   } catch (error) {
     console.error("Erro ao conectar no SQL:", error);
+    throw error;
   }
 }

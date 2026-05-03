@@ -41,6 +41,22 @@ const changePasswordSchema = Joi.object({
       "any.required": "Nova senha é obrigatória",
       "any.invalid": "Nova senha não pode ser igual à senha atual",
     }),
-});
+}).unknown(false);
 
-export { updateSchema, firstTimeUpdateSchema, changePasswordSchema };
+const adminUserUpdateSchema = Joi.object({
+  name: Joi.string().min(3).max(255).optional(),
+  email: Joi.string().email().optional(),
+  role: Joi.string().valid("admin", "professor", "student").optional(),
+  password: Joi.string()
+    .pattern(/^[a-zA-Z0-9]{3,30}$/)
+    .optional(),
+})
+  .min(1)
+  .unknown(false);
+
+export {
+  updateSchema,
+  firstTimeUpdateSchema,
+  changePasswordSchema,
+  adminUserUpdateSchema,
+};

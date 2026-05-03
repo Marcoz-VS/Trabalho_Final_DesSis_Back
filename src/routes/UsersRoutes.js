@@ -2,8 +2,9 @@ import express from "express";
 import UsersController from "../controllers/UsersController.js";
 import { Validate } from "../middlewares/ValidateMiddleware.js";
 import {
-  updateSchema,
   firstTimeUpdateSchema,
+  changePasswordSchema,
+  adminUserUpdateSchema,
 } from "../validations/UsersJoi.js";
 import { idParamSchema } from "../validations/IdJoi.js";
 import { Role } from "../middlewares/RoleMiddleware.js";
@@ -28,7 +29,7 @@ UsersRouter.get(
 UsersRouter.put(
   "/change-password",
   Role("admin", "student", "professor"),
-  Validate(firstTimeUpdateSchema),
+  Validate(changePasswordSchema),
   UsersController.changePassword
 );
 
@@ -40,6 +41,14 @@ UsersRouter.patch(
   Validate(firstTimeUpdateSchema),
   Ownership(UserPolicy.byUser, (req) => req.params.id),
   UsersController.updateFirstTimePassword,
+);
+
+UsersRouter.put(
+  "/:id",
+  Role("admin"),
+  Validate(idParamSchema, "params"),
+  Validate(adminUserUpdateSchema),
+  UsersController.updateByAdmin,
 );
 
 UsersRouter.delete(

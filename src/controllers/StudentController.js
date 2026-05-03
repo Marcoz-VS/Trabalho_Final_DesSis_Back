@@ -113,9 +113,18 @@ const StudentController = {
 
       await student.update(req.body);
 
+      const updated = await Student.findByPk(id, {
+        include: {
+          model: User,
+          as: "user",
+          attributes: ["id", "name", "email", "role"],
+        },
+      });
+
       return res.status(200).json({
         success: true,
         message: "Perfil de estudante atualizado com sucesso!",
+        data: updated,
       });
     } catch (err) {
       return res.status(500).json({

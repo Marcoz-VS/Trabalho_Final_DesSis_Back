@@ -21,6 +21,60 @@ const UsersController = {
     }
   },
 
+  updateByAdmin: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const body = req.body;
+
+      const user = await User.findByPk(id);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "Usuário não encontrado.",
+        });
+      }
+
+      const updates = {};
+
+      if (body.name !== undefined) {
+        updates.name = String(body.name).trim();
+      }
+      if (body.email !== undefined) {
+        updates.email = String(body.email).trim().toLowerCase();
+      }
+      if (body.role !== undefined) {
+        updates.role = body.role;
+      }
+      if (body.password !== undefined && String(body.password).trim()) {
+        updates.password = await bcrypt.hash(String(body.password).trim(), 10);
+      }
+
+      await user.update(updates);
+
+      const fresh = await User.findByPk(id, {
+        attributes: { exclude: ["password"] },
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Usuário atualizado.",
+        data: fresh,
+      });
+    } catch (error) {
+      if (error.name === "SequelizeUniqueConstraintError") {
+        return res.status(409).json({
+          success: false,
+          message: "E-mail já cadastrado.",
+        });
+      }
+      return res.status(500).json({
+        success: false,
+        message: "Erro ao atualizar usuário.",
+        error: error.message,
+      });
+    }
+  },
+
   getById: async (req, res) => {
     try {
       const { id } = req.params;

@@ -32,9 +32,13 @@ const studentSchema = Joi.object({
 }).unknown(false);
 
 const updateStudentSchema = Joi.object({
-  birth_date: Joi.date().iso(),
-  phone: Joi.string().pattern(/^[0-9+\-\s()]+$/),
-  avatar_url: Joi.string().uri(),
+  registration: Joi.string().min(3).max(50).optional(),
+  birth_date: Joi.date().iso().allow(null).optional(),
+  phone: Joi.string()
+    .pattern(/^[0-9+\-\s()]+$/)
+    .allow(null, "")
+    .optional(),
+  avatar_url: Joi.string().uri().allow(null, "").optional(),
 })
   .min(1)
   .unknown(false);

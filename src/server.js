@@ -13,9 +13,14 @@ import ScheduleRouter from "./routes/ScheduleRoutes.js";
 
 const PORT = process.env.PORT || 3000;
 const app = express();
+
+const corsOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim())
+  : ["http://localhost:5173", "http://127.0.0.1:5173"];
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: corsOrigins,
     methods: "GET,POST,PUT,DELETE,PATCH",
     credentials: true,
   }),
@@ -28,10 +33,14 @@ app.use("/students", StudentRouter);
 app.use("/classes", ClassRouter);
 app.use("/enrollment", EnrollmentRouter);
 app.use("/scores", ScoreRouter);
-app.use("/schedules", ScheduleRouter)
+app.use("/schedules", ScheduleRouter);
 
-
-app.listen(PORT, async () => {
+try {
   await connect();
-  console.log(`Servidor rodando na porta ${PORT} http://localhost:${PORT}`);
-});
+  app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT} http://localhost:${PORT}`);
+  });
+} catch (err) {
+  console.error("Falha ao iniciar o servidor:", err);
+  process.exit(1);
+}

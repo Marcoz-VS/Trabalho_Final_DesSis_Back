@@ -44,12 +44,15 @@ if (!senhaValida) {
         throw new Error("CHAVE_JWT não definida no .env");
       }
 
+      const studentId = user.student ? user.student.id : null;
+
       const token = jwt.sign(
         {
           id: user.id,
           email: user.email,
           role: user.role,
           firstTime: user.firstTime,
+          studentId,
         },
         chaveSecreta,
         { expiresIn: "2h" },
@@ -64,12 +67,12 @@ if (!senhaValida) {
           name: user.name,
           email: user.email,
           role: user.role,
+          firstTime: user.firstTime,
           student: user.student
             ? {
                 id: user.student.id,
               }
             : null,
-            firstTime: user.firstTime
         },
       });
     } catch (error) {

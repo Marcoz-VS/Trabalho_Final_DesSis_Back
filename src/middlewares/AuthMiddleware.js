@@ -32,7 +32,7 @@ export const Auth = (req, res, next) => {
       id: decoded.id,
       email: decoded.email,
       role: decoded.role,
-      student: decoded.studentId,
+      student: decoded.studentId ?? null,
       firstTime: decoded.firstTime,
     };
 
